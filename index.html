@@ -54,8 +54,8 @@ header h2 { font-size: 13px; font-weight: 500; letter-spacing: 0.12em; text-tran
 
 .cbody { padding: 13px; flex: 1; display: flex; flex-direction: column; }
 .cprice { font-size: 21px; font-weight: 700; color: var(--accent); }
-.ctitle { font-size: 13px; font-weight: 600; line-height: 1.4; margin: 4px 0 6px; }
-.cdesc { font-size: 12px; color: var(--muted); line-height: 1.55; flex: 1; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; margin-bottom: 12px; }
+.ctitle { font-size: 14px; font-weight: 600; line-height: 1.4; margin: 4px 0 6px; color: var(--text); }
+.cdesc { font-size: 14px; color: var(--text); line-height: 1.55; flex: 1; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; margin-bottom: 12px; }
 .cactions { display: flex; }
 .btn-wa { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 12px; background: var(--wa); color: #fff; border-radius: 9px; text-decoration: none; font-size: 13px; font-weight: 600; }
 .btn-wa:hover { opacity: .88; }
@@ -132,7 +132,7 @@ function enc(path) {
 }
 
 function waLink(item) {
-  const msg = `Hey Luc! I saw your moving sale page and I'm interested in the "${item.title}" ($${item.price}). Still available?`;
+  const msg = `Fala Jeanzão! I'm interested in the ${item.title} ($${item.price}). Do you still have it?`;
   return `https://wa.me/${WA}?text=${encodeURIComponent(msg)}`;
 }
 
@@ -247,7 +247,7 @@ const items = [
   },
   {
     title: 'LG 43" 4K UHD Smart TV',
-    price: 160, cat: 'Electronics',
+    price: 200, cat: 'Electronics',
     desc: '43-inch 4K with webOS, Netflix, YouTube, and all streaming apps. Active HDR. Great for bedroom or smaller living room. Retail $380.',
     imgs: ['bedroom/LG 43in TV/IMG_4831.JPG','bedroom/LG 43in TV/IMG_4832.JPG','bedroom/LG 43in TV/IMG_4833.JPG','bedroom/LG 43in TV/IMG_4835.jpg','bedroom/LG 43in TV/IMG_4836.jpg'],
     vids: ['bedroom/LG 43in TV/IMG_4834.mov'],
@@ -261,7 +261,7 @@ const items = [
   },
   {
     title: 'Nikon D3500 DSLR Kit — Body + 2 Lenses + Accessories',
-    price: 310, cat: 'Electronics',
+    price: 350, cat: 'Electronics',
     desc: '24.2MP D3500 + 18-55mm VR kit lens + 28mm f/2.8 prime for portraits/low light. Battery charger, spare battery, camera bag, tripod included. Retail $650+. Hard to find at this price.',
     imgs: ['bedroom/Nikon Camera Kit/IMG_4810.JPG','bedroom/Nikon Camera Kit/IMG_4807.JPG','bedroom/Nikon Camera Kit/IMG_4808.JPG','bedroom/Nikon Camera Kit/IMG_4809.JPG','bedroom/Nikon Camera Kit/IMG_4811.JPG','bedroom/Nikon Camera Kit/IMG_4813.JPG'],
     vids: ['bedroom/Nikon Camera Kit/IMG_4816.mov'],
@@ -275,7 +275,7 @@ const items = [
   },
   {
     title: 'iRobot Roomba i7+ with Auto-Empty Clean Base',
-    price: 250, cat: 'Electronics',
+    price: 230, cat: 'Electronics',
     desc: 'Maps your home, learns your schedule, empties its own bin. Smart mapping, scheduled cleaning, Alexa & Google Home compatible. Retail $899.',
     imgs: ['living room/roomba i7/IMG_4925.JPG','living room/roomba i7/IMG_4927.jpg'],
     vids: ['living room/roomba i7/EB9800A1-5D33-4E49-A8C4-8017BF4B4427segment_video_2.MP4'],
@@ -317,14 +317,14 @@ const items = [
   },
   {
     title: 'Vankyo Leisure 510 Portable Projector',
-    price: 40, cat: 'Electronics',
+    price: 50, cat: 'Electronics',
     desc: 'HDMI, USB, AV inputs. Up to 200-inch screen. Good brightness in dark rooms. Includes remote. Retail $80.',
     imgs: ['living room/vankyo projector/IMG_4933.JPG','living room/vankyo projector/IMG_4936.jpg','living room/vankyo projector/IMG_4937.JPG','living room/vankyo projector/IMG_4938.JPG'],
     vids: [],
   },
   {
     title: 'Google Nest Hub 7" Smart Display (2nd Gen) — Sand',
-    price: 40, cat: 'Electronics',
+    price: 60, cat: 'Electronics',
     desc: 'Shows recipes, streams YouTube, controls smart home, hands-free timers. Sand color. Like new. Retail $99.',
     imgs: ['kitchen and extra/google home/IMG_5055.JPG','kitchen and extra/google home/IMG_5056.JPG'],
     vids: ['kitchen and extra/google home/IMG_5054.mov'],

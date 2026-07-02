@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saldão do Jeanzão</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAF9F6; --card: #fff; --text: #1a1a1a; --muted: #666;
+  --accent: #D4622A; --wa: #25D366; --border: #E8E4DC;
+  --yellow: #FFD600; --navy: #0D1B2A;
+  --radius: 14px; --shadow: 0 2px 14px rgba(0,0,0,0.07);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+
+/* HEADER with illustration background */
+header {
+  position: relative;
+  color: #fff;
+  padding: 92px 24px 108px;
+  text-align: center;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(13,27,42,0.38) 0%,
+      rgba(13,27,42,0.62) 40%,
+      rgba(13,27,42,0.86) 75%,
+      rgba(13,27,42,0.94) 100%
+    ),
+    var(--yellow) url('banner.png') center / cover no-repeat;
+}
+header h1 { font-family: 'Syne', -apple-system, sans-serif; font-size: clamp(28px, 6vw, 52px); font-weight: 800; letter-spacing: -0.5px; color: var(--yellow); line-height: 1.05; margin-bottom: 6px; text-shadow: 0 2px 18px rgba(0,0,0,0.55); }
+header h2 { font-size: 13px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,.6); margin-bottom: 20px; text-shadow: 0 1px 8px rgba(0,0,0,0.5); }
+.tagline { max-width: 540px; margin: 0 auto; font-size: 15px; line-height: 1.7; color: rgba(255,255,255,.85); text-shadow: 0 1px 10px rgba(0,0,0,0.6); }
+.tagline strong { color: #fff; }
+
+.filters { padding: 18px 20px 6px; display: flex; gap: 8px; flex-wrap: wrap; max-width: 1160px; margin: 0 auto; }
+.fbtn { padding: 7px 18px; border-radius: 100px; border: 1.5px solid var(--border); background: #fff; color: var(--muted); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; font-family: inherit; }
+.fbtn.on, .fbtn:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+.grid { max-width: 1160px; margin: 0 auto; padding: 16px 16px 60px; display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; }
+@media(max-width:640px) { .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 10px 10px 50px; } }
+@media(max-width:380px) { .grid { grid-template-columns: 1fr; } }
+
+.card { background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; transition: transform .15s, box-shadow .15s; }
+.card:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(0,0,0,0.11); }
+.thumb-wrap { position: relative; cursor: pointer; }
+.thumb { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; background: #F0EDE8; }
+.media-count { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,.5); color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 99px; }
+.no-img { width: 100%; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; background: #F0EDE8; color: #bbb; font-size: 13px; cursor: pointer; }
+
+.cbody { padding: 13px; flex: 1; display: flex; flex-direction: column; }
+.cprice { font-size: 21px; font-weight: 700; color: var(--accent); }
+.ctitle { font-size: 13px; font-weight: 600; line-height: 1.4; margin: 4px 0 6px; }
+.cdesc { font-size: 12px; color: var(--muted); line-height: 1.55; flex: 1; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; margin-bottom: 12px; }
+.cactions { display: flex; }
+.btn-wa { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 12px; background: var(--wa); color: #fff; border-radius: 9px; text-decoration: none; font-size: 13px; font-weight: 600; }
+.btn-wa:hover { opacity: .88; }
+
+/* MODAL */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.88); z-index: 900; align-items: center; justify-content: center; padding: 12px; }
+.overlay.open { display: flex; }
+.mbox { background: #fff; border-radius: 18px; max-width: 580px; width: 100%; max-height: 92vh; overflow-y: auto; }
+.mgallery { position: relative; background: #111; border-radius: 18px 18px 0 0; overflow: hidden; }
+.mimg { width: 100%; aspect-ratio: 4/3; object-fit: contain; display: block; }
+.mvid { width: 100%; aspect-ratio: 4/3; display: block; }
+.mnav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,.18); backdrop-filter: blur(4px); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.mnav.p { left: 10px; } .mnav.n { right: 10px; }
+.mclose { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,.45); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.mdots { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.45); cursor: pointer; }
+.dot.on { background: #fff; }
+.mbody { padding: 20px; }
+.mprice { font-size: 26px; font-weight: 700; color: var(--accent); }
+.mtitle { font-size: 17px; font-weight: 600; line-height: 1.35; margin: 5px 0 12px; }
+.mdesc { font-size: 14px; color: var(--muted); line-height: 1.65; margin-bottom: 20px; }
+.mwa { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; background: var(--wa); color: #fff; border-radius: 11px; text-decoration: none; font-size: 15px; font-weight: 600; }
+.mwa:hover { opacity: .9; }
+
+footer { text-align: center; padding: 28px 20px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Saldão do Jeanzão</h1>
+  <h2>A private garage sale for friends</h2>
+  <p class="tagline">
+    Dear fellows, I've posted most of this on Facebook but wanted to share this link with all the things I have out now.
+    I can probably <strong>deliver for you</strong> if you're in Davis or the vicinity.
+    Prices are what's listed on FB, but for you, <strong>let's negotiate.</strong>
+  </p>
+</header>
+
+<div class="filters" id="filters"></div>
+<div class="grid" id="grid"></div>
+
+<div class="overlay" id="overlay">
+  <div class="mbox">
+    <div class="mgallery">
+      <div id="mslide"></div>
+      <button class="mnav p" onclick="nav(-1)">&#8249;</button>
+      <button class="mnav n" onclick="nav(1)">&#8250;</button>
+      <div class="mdots" id="mdots"></div>
+      <button class="mclose" onclick="close_()">&#10005;</button>
+    </div>
+    <div class="mbody">
+      <div class="mprice" id="mprice"></div>
+      <div class="mtitle" id="mtitle"></div>
+      <div class="mdesc" id="mdesc"></div>
+      <a class="mwa" id="mwa" href="#" target="_blank">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        I want this
+      </a>
+    </div>
+  </div>
+</div>
+
+<footer>Davis / Sacramento pickup &nbsp;·&nbsp; Cash or Venmo &nbsp;·&nbsp; All like new condition</footer>
+
+<script>
+// ── SET YOUR NUMBER HERE ─────────────────────────────────────────────
+// Include country code, no +, no spaces. Example: '15305551234'
+const WA = '14154109788';
+// ────────────────────────────────────────────────────────────────────
+
+function enc(path) {
+  return path.split('/').map(s => encodeURIComponent(s)).join('/');
+}
+
+function waLink(item) {
+  const msg = `Hey Luc! I saw your moving sale page and I'm interested in the "${item.title}" ($${item.price}). Still available?`;
+  return `https://wa.me/${WA}?text=${encodeURIComponent(msg)}`;
+}
+
+const items = [
+  // ── FURNITURE ──────────────────────────────────────────────────────
+  {
+    title: 'Large L-Shaped Sectional Sofa + Coffee Table (free gift)',
+    price: 350, cat: 'Furniture',
+    desc: 'The kind of sectional that actually fits everyone. L-shaped with chaise lounge, cream/light fabric, deep plush cushions. Walnut-top coffee table included FREE with the couch. Comparable retail $1,200+. Large item — coordinate pickup.',
+    imgs: ['kitchen and extra/couch-center table/IMG_5038.JPG','kitchen and extra/couch-center table/IMG_5039.JPG','kitchen and extra/couch-center table/IMG_5040.JPG','kitchen and extra/couch-center table/IMG_5037.JPG'],
+    vids: ['kitchen and extra/couch-center table/IMG_5041.mov'],
+  },
+  {
+    title: '5 Dining Chairs + Rustic Dining Table — Full Set or Separately',
+    price: 250, cat: 'Furniture',
+    desc: '3 olive green velvet + 2 cream fabric chairs, all mid-century modern with black metal legs. Solid rustic table: warm wood top, scrolled wrought-iron legs, seats 4–6. $50/chair · $80 table · $250 full set.',
+    imgs: ['kitchen and extra/dinner table/IMG_5043.JPG','kitchen and extra/dinner table/IMG_5044.JPG','kitchen and extra/dinner table/IMG_5045.JPG','kitchen and extra/chairs/IMG_5042.JPG','kitchen and extra/chairs/IMG_5046.JPG'],
+    vids: ['kitchen and extra/chairs/IMG_5051.mov'],
+  },
+  {
+    title: 'Giant Bean Bag Floor Lounger — 6+ ft Wide, Gray',
+    price: 120, cat: 'Furniture',
+    desc: 'Basically a couch you can fall into from any direction. Enormous oval bean bag, ~6 feet wide, soft gray suede-look cover. Holds one adult easily or two if you\'re close. Retail $300+. Needs truck/large SUV.',
+    imgs: ['kitchen and extra/huge bean bag/IMG_5052.JPG'],
+    vids: ['kitchen and extra/huge bean bag/IMG_5053.mov'],
+  },
+  {
+    title: 'FlexiSpot Electric Standing Desk — Height Adjustable',
+    price: 195, cat: 'Furniture',
+    desc: 'Electric height-adjustable with programmable memory presets. White top, dual motor frame, whisper-quiet. Makes a real difference if you work from home. Retail $450+. Large item.',
+    imgs: ['bedroom/FlexiSpot Standing Desk/IMG_4818.JPG','bedroom/FlexiSpot Standing Desk/IMG_4817.JPG','bedroom/FlexiSpot Standing Desk/IMG_4820.jpg','bedroom/FlexiSpot Standing Desk/IMG_4827.JPG'],
+    vids: ['bedroom/FlexiSpot Standing Desk/IMG_4821.mov'],
+  },
+  {
+    title: 'Solid Hardwood Console Table — 4 Drawers, Cherry Finish',
+    price: 75, cat: 'Furniture',
+    desc: 'Rich cherry finish, original brass knob hardware, craftsman fluted legs. Four drawers. Works as sideboard, entryway table, or media console. Sturdy solid wood throughout.',
+    imgs: ['living room/hardwood Dresser/IMG_4870.JPG','living room/hardwood Dresser/IMG_4871.JPG'],
+    vids: [],
+  },
+  {
+    title: 'High-Back Ergonomic Mesh Office Chair',
+    price: 75, cat: 'Furniture',
+    desc: 'Full mesh with adjustable headrest, flip-up arms, lumbar support, and tilt lock. The kind of chair that makes a full workday comfortable. Retail $250+.',
+    imgs: ['bedroom/Ergonomic Office Chair/IMG_4843.JPG','bedroom/Ergonomic Office Chair/IMG_4844.JPG','bedroom/Ergonomic Office Chair/IMG_4845.JPG','bedroom/Ergonomic Office Chair/IMG_4846.JPG'],
+    vids: ['bedroom/Ergonomic Office Chair/IMG_4847.mov'],
+  },
+  {
+    title: 'Queen Bed Frame + Premium Mattress Bundle',
+    price: 150, cat: 'Furniture',
+    desc: 'Dark metal platform frame with warm wood headboard, industrial farmhouse style. Comes with a very good quality queen mattress in excellent condition. $150 for the bundle or $100 each. No box spring needed.',
+    imgs: ['bedroom/Bed Frame/IMG_4861.JPG','bedroom/Bed Frame/IMG_4862.jpg'],
+    vids: [],
+  },
+  {
+    title: 'Industrial Nightstands — Set of 2',
+    price: 30, cat: 'Furniture',
+    desc: 'Two matching: industrial metal frame, dark wood top, slide-out mesh drawer, open bottom shelf. $30 for the set or $20 each.',
+    imgs: ['bedroom/Nightstands/IMG_4838.JPG','bedroom/Nightstands/IMG_4840.JPG','bedroom/Nightstands/IMG_4841.jpg','bedroom/Nightstands/IMG_4842.JPG'],
+    vids: ['bedroom/Nightstands/IMG_4839.mov'],
+  },
+  {
+    title: 'Solid Wood 3-Drawer Dresser',
+    price: 40, cat: 'Furniture',
+    desc: 'Three deep drawers with brass-tone hardware. All slide smoothly. Warm honey oak finish works with most bedroom setups.',
+    imgs: ['bedroom/Wooden Dresser/IMG_4828.JPG','bedroom/Wooden Dresser/IMG_4829.JPG','bedroom/Wooden Dresser/IMG_4830.JPG'],
+    vids: [],
+  },
+  {
+    title: 'IKEA 5-Tier Industrial Bookshelf',
+    price: 80, cat: 'Furniture',
+    desc: 'Black X-brace metal frame, rustic brown wood shelves. Five tiers for books, plants, gear, bottles — proven capacity.',
+    imgs: ['living room/sidetable /ikea industrial shelf.JPG'],
+    vids: [],
+  },
+  {
+    title: 'Gray Farmhouse Side Table',
+    price: 15, cat: 'Furniture',
+    desc: 'Gray-painted with one drawer, lower shelf, turned legs. Compact and versatile — sofa side, bedroom, entryway.',
+    imgs: ['living room/sidetable /IMG_4924.JPG','living room/sidetable /IMG_4930.JPG','living room/sidetable /IMG_4932.JPG'],
+    vids: [],
+  },
+  {
+    title: 'Industrial End Table — Fabric + Metal Drawer',
+    price: 20, cat: 'Furniture',
+    desc: 'Rustic wood top, black metal frame, fabric and metal drawer, open bottom shelf. Works in almost any room.',
+    imgs: ['living room/small sidetable/IMG_4905.JPG','living room/small sidetable/IMG_4906.JPG'],
+    vids: [],
+  },
+  {
+    title: 'Modern Floor Lamp — Black Gooseneck, Gray Drum Shade',
+    price: 35, cat: 'Furniture',
+    desc: 'Adjustable gooseneck arm, gray textured linen drum shade. Warm, clean — fits any room without taking over.',
+    imgs: ['living room/modern lamp with smart lamp/IMG_4945.JPG'],
+    vids: ['living room/modern lamp with smart lamp/IMG_4944.mov'],
+  },
+  {
+    title: 'Modern Bedside Table Lamp — Gray Cylinder Shade',
+    price: 12, cat: 'Furniture',
+    desc: 'Cylindrical gray linen shade, black metal base. Simple and clean. Works perfectly.',
+    imgs: ['bedroom/Bedlamps/IMG_4865.JPG','bedroom/Bedlamps/IMG_4864.JPG'],
+    vids: ['bedroom/Bedlamps/IMG_4863.mov'],
+  },
+
+  // ── ELECTRONICS ────────────────────────────────────────────────────
+  {
+    title: 'LG 65" OLED evo C-Series 4K Smart TV',
+    price: 850, cat: 'Electronics',
+    desc: 'Cinema-grade OLED: perfect blacks, infinite contrast, near-instant response. webOS with all streaming apps built in. AI picture & sound. Zero burn-in. Retail $2,699 new.',
+    imgs: ['living room/65" LG SmarTV/IMG_4876.JPG','living room/65" LG SmarTV/IMG_4878.JPG','living room/65" LG SmarTV/IMG_4879.JPG','living room/65" LG SmarTV/IMG_4880.JPG','living room/65" LG SmarTV/IMG_4902.JPG'],
+    vids: ['living room/65" LG SmarTV/IMG_4877.mov'],
+  },
+  {
+    title: 'LG 43" 4K UHD Smart TV',
+    price: 160, cat: 'Electronics',
+    desc: '43-inch 4K with webOS, Netflix, YouTube, and all streaming apps. Active HDR. Great for bedroom or smaller living room. Retail $380.',
+    imgs: ['bedroom/LG 43in TV/IMG_4831.JPG','bedroom/LG 43in TV/IMG_4832.JPG','bedroom/LG 43in TV/IMG_4833.JPG','bedroom/LG 43in TV/IMG_4835.jpg','bedroom/LG 43in TV/IMG_4836.jpg'],
+    vids: ['bedroom/LG 43in TV/IMG_4834.mov'],
+  },
+  {
+    title: 'PS5 Slim + 2 Controllers + Charging Dock + 9 Games',
+    price: 530, cat: 'Electronics',
+    desc: 'Complete setup: PS5 Slim disc + charging dock + white DualSense + red DualShock 4. Physical games: Far Cry 6, Spider-Man Miles Morales, Dying Light 2, Last of Us Remastered, Witcher 3, Mass Effect Andromeda, Red Dead 2. Plus 2 digital. Console retails $549 alone.',
+    imgs: ['living room/PS5 with two controllers and 7 games/IMG_4882.JPG','living room/PS5 with two controllers and 7 games/IMG_4883.JPG','living room/PS5 with two controllers and 7 games/IMG_4884.JPG','living room/PS5 with two controllers and 7 games/IMG_4885.JPG','living room/PS5 with two controllers and 7 games/IMG_4898.JPG','living room/PS5 with two controllers and 7 games/IMG_4899.JPG'],
+    vids: ['living room/PS5 with two controllers and 7 games/IMG_4886.mov'],
+  },
+  {
+    title: 'Nikon D3500 DSLR Kit — Body + 2 Lenses + Accessories',
+    price: 310, cat: 'Electronics',
+    desc: '24.2MP D3500 + 18-55mm VR kit lens + 28mm f/2.8 prime for portraits/low light. Battery charger, spare battery, camera bag, tripod included. Retail $650+. Hard to find at this price.',
+    imgs: ['bedroom/Nikon Camera Kit/IMG_4810.JPG','bedroom/Nikon Camera Kit/IMG_4807.JPG','bedroom/Nikon Camera Kit/IMG_4808.JPG','bedroom/Nikon Camera Kit/IMG_4809.JPG','bedroom/Nikon Camera Kit/IMG_4811.JPG','bedroom/Nikon Camera Kit/IMG_4813.JPG'],
+    vids: ['bedroom/Nikon Camera Kit/IMG_4816.mov'],
+  },
+  {
+    title: 'Audio-Technica Turntable + Edifier Speakers + Shelf + Vinyl',
+    price: 280, cat: 'Electronics',
+    desc: 'Full vinyl setup. AT-LP120XBT-USB turntable with Bluetooth + USB (retail $349). Edifier R1280T speakers with remote (retail $99). Industrial shelf included. Vinyl: AC/DC, Beatles, Depeche Mode, more. Turntable $175 or speakers $50 sold separately.',
+    imgs: ['kitchen and extra/edifiersound and audio technica turntable/IMG_4907.JPG','kitchen and extra/edifiersound and audio technica turntable/IMG_4908.JPG','kitchen and extra/edifiersound and audio technica turntable/IMG_4910.JPG','kitchen and extra/edifiersound and audio technica turntable/IMG_4912.JPG','kitchen and extra/edifiersound and audio technica turntable/IMG_4914.JPG','kitchen and extra/edifiersound and audio technica turntable/IMG_4918.JPG','kitchen and extra/edifiersound and audio technica turntable/IMG_4920.JPG'],
+    vids: ['kitchen and extra/edifiersound and audio technica turntable/IMG_4917.mov'],
+  },
+  {
+    title: 'iRobot Roomba i7+ with Auto-Empty Clean Base',
+    price: 250, cat: 'Electronics',
+    desc: 'Maps your home, learns your schedule, empties its own bin. Smart mapping, scheduled cleaning, Alexa & Google Home compatible. Retail $899.',
+    imgs: ['living room/roomba i7/IMG_4925.JPG','living room/roomba i7/IMG_4927.jpg'],
+    vids: ['living room/roomba i7/EB9800A1-5D33-4E49-A8C4-8017BF4B4427segment_video_2.MP4'],
+  },
+  {
+    title: 'Samsung HW-B650 3.1ch Soundbar + Wireless Subwoofer',
+    price: 120, cat: 'Electronics',
+    desc: 'Dolby 5.1, DTS Virtual:X, built-in center speaker. HDMI ARC, Bluetooth multi-connection. Wireless sub included. Retail $249.',
+    imgs: ['living room/Samsung Soundbar/IMG_4888.jpg','living room/Samsung Soundbar/IMG_4891.JPG','living room/Samsung Soundbar/IMG_4894.JPG','living room/Samsung Soundbar/IMG_4895.JPG'],
+    vids: ['living room/Samsung Soundbar/IMG_4889.mov'],
+  },
+  {
+    title: 'Samsung SWA-W700 Wireless Subwoofer — 10", 200W',
+    price: 110, cat: 'Electronics',
+    desc: '10-inch front-firing driver, 200W, 27Hz bass. Pairs wirelessly with compatible Samsung soundbars. No visible wire. Retail $400.',
+    imgs: ['living room/subwoofer/IMG_4940.JPG','living room/subwoofer/IMG_4941.JPG','living room/subwoofer/IMG_4942.JPG','living room/subwoofer/IMG_4943.JPG'],
+    vids: [],
+  },
+  {
+    title: 'ASUS ZenWiFi AX (XT8) WiFi 6 Mesh Router',
+    price: 85, cat: 'Electronics',
+    desc: 'Tri-band WiFi 6, 2,750 sq ft coverage, no dead zones. AiProtection security, parental controls, 2.5G port. Retail $250.',
+    imgs: ['living room/xfinity modem extender/IMG_4947.JPG','living room/xfinity modem extender/IMG_4948.JPG','living room/xfinity modem extender/IMG_4949.JPG','living room/xfinity modem extender/IMG_4950.JPG'],
+    vids: [],
+  },
+  {
+    title: 'Blue Yeti USB Microphone — Blackout',
+    price: 60, cat: 'Electronics',
+    desc: 'Studio-quality. 4 pickup patterns, plug-and-play, zero-latency headphone jack. The go-to mic for podcasting and streaming. Retail $139.',
+    imgs: ['bedroom/Blue Yeti Microphone/IMG_4849.JPG','bedroom/Blue Yeti Microphone/IMG_4851.JPG'],
+    vids: ['bedroom/Blue Yeti Microphone/IMG_4850.mov'],
+  },
+  {
+    title: 'Panasonic Genius Sensor 1200W Countertop Microwave',
+    price: 60, cat: 'Electronics',
+    desc: 'Auto Sensor Cook, Sensor Reheat, Turbo Defrost, Keep Warm, 10 power levels. Black exterior, stainless panel. Retail $200+. Works perfectly.',
+    imgs: ['kitchen and extra/microwave/IMG_5058.JPG','kitchen and extra/microwave/IMG_5059.JPG'],
+    vids: ['kitchen and extra/microwave/IMG_5060.mov'],
+  },
+  {
+    title: 'Vankyo Leisure 510 Portable Projector',
+    price: 40, cat: 'Electronics',
+    desc: 'HDMI, USB, AV inputs. Up to 200-inch screen. Good brightness in dark rooms. Includes remote. Retail $80.',
+    imgs: ['living room/vankyo projector/IMG_4933.JPG','living room/vankyo projector/IMG_4936.jpg','living room/vankyo projector/IMG_4937.JPG','living room/vankyo projector/IMG_4938.JPG'],
+    vids: [],
+  },
+  {
+    title: 'Google Nest Hub 7" Smart Display (2nd Gen) — Sand',
+    price: 40, cat: 'Electronics',
+    desc: 'Shows recipes, streams YouTube, controls smart home, hands-free timers. Sand color. Like new. Retail $99.',
+    imgs: ['kitchen and extra/google home/IMG_5055.JPG','kitchen and extra/google home/IMG_5056.JPG'],
+    vids: ['kitchen and extra/google home/IMG_5054.mov'],
+  },
+  {
+    title: 'Epson XP-5100 Wireless All-in-One Printer',
+    price: 45, cat: 'Electronics',
+    desc: 'Print, scan, copy. WiFi, auto two-sided printing, sharp color. Includes one unopened 202 black ink cartridge. Retail $149.',
+    imgs: ['living room/EPSON Printer/IMG_4866.JPG','living room/EPSON Printer/IMG_4867.JPG','living room/EPSON Printer/IMG_4869.JPG'],
+    vids: ['living room/EPSON Printer/IMG_4868.mov'],
+  },
+  {
+    title: 'Apple Magic Trackpad — 1st Generation',
+    price: 25, cat: 'Electronics',
+    desc: 'Wireless Bluetooth multi-touch, AA battery powered. Works seamlessly with any Mac. Clean minimal alternative to a mouse.',
+    imgs: ['bedroom/Apple Magic Trackpad/IMG_4852.JPG'],
+    vids: [],
+  },
+  {
+    title: 'Panasonic Lumix Battery Charger',
+    price: 12, cat: 'Electronics',
+    desc: 'Compact travel-style cradle with power cord. Good condition. Verify compatibility with your specific Lumix model before buying.',
+    imgs: ['kitchen and extra/lumix charger/IMG_5068.JPG','kitchen and extra/lumix charger/IMG_5069.JPG','kitchen and extra/lumix charger/IMG_5070.JPG'],
+    vids: [],
+  },
+
+  // ── GAMES & HOBBIES ────────────────────────────────────────────────
+  {
+    title: 'Board Games Bundle — 8 Games: Catan, 7 Wonders, GoT Catan + More',
+    price: 120, cat: 'Games',
+    desc: 'Catan, GoT Catan: Brotherhood, 7 Wonders, Dungeon Lords, Star Wars Risk, Monopoly Here & Now, Organ Attack!, Bad People. Buy individually (prices on request) or $120 for all 8.',
+    imgs: ['kitchen and extra/board games/IMG_5071.jpg','kitchen and extra/board games/IMG_5072.jpg','kitchen and extra/board games/IMG_5073.JPG','kitchen and extra/board games/IMG_5074.JPG','kitchen and extra/board games/IMG_5075.JPG','kitchen and extra/board games/IMG_5076.JPG','kitchen and extra/board games/IMG_5077.JPG'],
+    vids: [],
+  },
+  {
+    title: 'Wilson Fusion XL Tennis Rackets — Matched Pair',
+    price: 20, cat: 'Games',
+    desc: 'Two Wilson Fusion XL rackets, black and red, great condition. Good for beginners or casual play. Retail $35 each.',
+    imgs: ['kitchen and extra/tennis rackets/IMG_5061.JPG','kitchen and extra/tennis rackets/IMG_5062.JPG','kitchen and extra/tennis rackets/IMG_5063.JPG','kitchen and extra/tennis rackets/IMG_5064.JPG'],
+    vids: ['kitchen and extra/tennis rackets/IMG_5065.mov'],
+  },
+
+  // ── HOME & KITCHEN ─────────────────────────────────────────────────
+  {
+    title: 'Kitchen Bundle: Crockpot, Cocktail Station, Spice Rack, Grinder + More',
+    price: 65, cat: 'Home & Kitchen',
+    desc: 'Crock-Pot digital slow cooker, cocktail station with chrome shaker + bar tools, rotating stainless spice carousel, KRUPS grinder, Dash Mini Waffle Maker, Dash sandwich maker, adjustable mandoline, Brita filter. Individual prices available.',
+    imgs: ['kitchen and extra/crockpot/IMG_5083.JPG','kitchen and extra/cocktail station/IMG_5049.JPG','kitchen and extra/coffee and spice grinder/IMG_5091.JPG','kitchen and extra/spiceRack - missing one spice some of them filled/IMG_5087.JPG','kitchen and extra/waffle and grilled sandwich maker/IMG_5096.JPG','kitchen and extra/mandolin and vegetable chopper/IMG_5100.JPG'],
+    vids: ['kitchen and extra/cocktail station/IMG_5050.mov'],
+  },
+  {
+    title: 'Black Picture Frames — Set of 6, Mixed Sizes',
+    price: 20, cat: 'Home & Kitchen',
+    desc: 'Six black frames in assorted sizes, clean and in good condition. Great for anyone moving into a new place.',
+    imgs: ['kitchen and extra/frames/IMG_5081.JPG','kitchen and extra/frames/IMG_5082.JPG'],
+    vids: [],
+  },
+  {
+    title: 'Scented Candles Bundle — 6 Candles',
+    price: 38, cat: 'Home & Kitchen',
+    desc: 'Bath & Body Works Ginger & Hinoki 3-wick, two Bellevue Luxury scents, My Home Scent reed diffuser set, and more. Most unlit or barely used. Total retail $120+.',
+    imgs: ['bedroom/Candles Bundle/IMG_4794.JPG','bedroom/Candles Bundle/IMG_4795.JPG','bedroom/Candles Bundle/IMG_4796.JPG','bedroom/Candles Bundle/IMG_4797.JPG','bedroom/Candles Bundle/IMG_4798.JPG'],
+    vids: ['bedroom/Candles Bundle/IMG_4801.mov'],
+  },
+  {
+    title: 'Lasko Oscillating Tower Fan with Remote',
+    price: 55, cat: 'Home & Kitchen',
+    desc: 'Multiple speeds, timer, wide oscillation. White, quiet motor. Looks clean in any bedroom or living room.',
+    imgs: ['bedroom/lasko fan/IMG_4854.JPG'],
+    vids: [],
+  },
+];
+
+// ── FILTER & RENDER ────────────────────────────────────────────────────
+let activeCat = 'All';
+
+function allCats() {
+  return ['All', ...new Set(items.map(i => i.cat))];
+}
+
+function buildFilters() {
+  const bar = document.getElementById('filters');
+  allCats().forEach(c => {
+    const b = document.createElement('button');
+    b.className = 'fbtn' + (c === activeCat ? ' on' : '');
+    b.textContent = c;
+    b.onclick = () => { activeCat = c; renderFilters(); renderGrid(); };
+    bar.appendChild(b);
+  });
+}
+
+function renderFilters() {
+  document.querySelectorAll('.fbtn').forEach((b, i) => {
+    b.className = 'fbtn' + (b.textContent === activeCat ? ' on' : '');
+  });
+}
+
+function renderGrid() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  (activeCat === 'All' ? items : items.filter(i => i.cat === activeCat)).forEach(item => {
+    const idx = items.indexOf(item);
+    const total = item.imgs.length + item.vids.length;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="thumb-wrap" onclick="open_(${idx})">
+        ${item.imgs[0]
+          ? `<img class="thumb" src="${enc(item.imgs[0])}" loading="lazy" alt="">`
+          : `<div class="no-img">No photo yet</div>`}
+        ${total > 1 ? `<span class="media-count">📷 ${total}</span>` : ''}
+      </div>
+      <div class="cbody">
+        <div class="cprice">$${item.price}</div>
+        <div class="ctitle">${item.title}</div>
+        <div class="cdesc">${item.desc}</div>
+        <div class="cactions">
+          <a class="btn-wa" href="${waLink(item)}" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            I want this
+          </a>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ── MODAL ──────────────────────────────────────────────────────────────
+let cur = null, midx = 0;
+
+function allMedia(item) {
+  return [...item.imgs.map(s=>({t:'img',s})), ...item.vids.map(s=>({t:'vid',s}))];
+}
+
+function open_(idx) {
+  cur = items[idx]; midx = 0;
+  refreshModal();
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function close_() {
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  document.querySelectorAll('#mslide video').forEach(v => v.pause());
+}
+
+function refreshModal() {
+  const media = allMedia(cur);
+  const m = media[midx];
+  const slide = document.getElementById('mslide');
+
+  if (!m) { slide.innerHTML = ''; return; }
+  document.querySelectorAll('#mslide video').forEach(v => v.pause());
+
+  if (m.t === 'img') {
+    slide.innerHTML = `<img class="mimg" src="${enc(m.s)}" alt="">`;
+  } else {
+    slide.innerHTML = `<video class="mvid" controls playsinline><source src="${enc(m.s)}" type="video/mp4"><source src="${enc(m.s)}" type="video/quicktime">Video not supported.</video>`;
+    slide.querySelector('video').play().catch(()=>{});
+  }
+
+  const dots = document.getElementById('mdots');
+  dots.innerHTML = '';
+  if (media.length > 1) {
+    media.forEach((_, i) => {
+      const d = document.createElement('div');
+      d.className = 'dot' + (i === midx ? ' on' : '');
+      d.onclick = () => { midx = i; refreshModal(); };
+      dots.appendChild(d);
+    });
+  }
+
+  document.querySelectorAll('.mnav').forEach(b => b.style.display = media.length > 1 ? '' : 'none');
+  document.getElementById('mprice').textContent = '$' + cur.price;
+  document.getElementById('mtitle').textContent = cur.title;
+  document.getElementById('mdesc').textContent = cur.desc;
+  document.getElementById('mwa').href = waLink(cur);
+}
+
+function nav(d) {
+  const n = allMedia(cur).length;
+  midx = (midx + d + n) % n;
+  document.querySelectorAll('#mslide video').forEach(v => v.pause());
+  refreshModal();
+}
+
+document.getElementById('overlay').addEventListener('click', e => { if (e.target === e.currentTarget) close_(); });
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('overlay').classList.contains('open')) return;
+  if (e.key === 'ArrowLeft') nav(-1);
+  if (e.key === 'ArrowRight') nav(1);
+  if (e.key === 'Escape') close_();
+});
+
+buildFilters();
+renderGrid();
+</script>
+</body>
+</html>
